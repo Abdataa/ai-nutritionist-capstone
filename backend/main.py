@@ -1,6 +1,27 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+from routers import mealplan, auth
+from core.config import settings
+
+app = FastAPI(
+    title="AI Nutritionist Backend",
+    description="LLM-powered nutritional recommendation service",
+    version="1.0.0"
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # change later for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---Routers---
+app.include_router(mealplan.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 
 @app.get("/")
 def home():
