@@ -7,7 +7,37 @@
 - Documentation following capstone guide
 
 ## Folder Structure
-/backend
-/frontend
-/ai-model
-/docs
+ai-nutritionist-capstone/
+│
+├── backend/
+│   ├── main.py
+│   │
+│   ├── routers/
+│   │     ├── auth.py
+│   │     ├── mealplan.py
+│   │     └── pdf.py
+│   │
+│   ├── core/
+│   │     ├── security.py
+│   │     └── config.py
+│   │
+│   ├── database/
+│   │     ├── database.py   
+│   │     ├── models.py       
+│   │     └── schemas.py      
+│   │
+│   ├── ai/
+│   │     └── generator.py
+│   │
+│   └── requirements.txt
+│
+├── frontend/
+│
+├── ai-model/
+│   ├── dataset/
+│   ├── training/
+│   └── inference/
+│
+└── docs/
+
+

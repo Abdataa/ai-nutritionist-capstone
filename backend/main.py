@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from database.database import engine
+from database.models import Base
+Base.metadata.create_all(bind=engine)
+
 
 from routers import mealplan, auth
 from core.config import settings
