@@ -4,6 +4,7 @@ from database.schemas import MealPlanCreate
 from database.database import get_db
 from ai.generator import generate_meal_plan
 
+
 router = APIRouter(prefix="/mealplan", tags=["Meal Plan"])
 
 @router.post("/")

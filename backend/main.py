@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database.database import engine
 from database.models import Base
-Base.metadata.create_all(bind=engine)
+
 
 
 from routers import mealplan, auth
@@ -13,6 +13,7 @@ app = FastAPI(
     description="LLM-powered nutritional recommendation service",
     version="1.0.0"
 )
+Base.metadata.create_all(bind=engine)
 
 # CORS
 app.add_middleware(
