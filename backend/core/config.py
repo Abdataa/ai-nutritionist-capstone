@@ -1,12 +1,12 @@
-from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
 
-class Settings(BaseSettings):
-    OPENAI_API_KEY: str | None = None  
-    JWT_SECRET: str = "your_secret_here"
-    JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+load_dotenv()
 
-    class Config:
-        env_file = ".env"   
+class Settings:
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./nutritionist.db")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "replace-me")
+    ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 settings = Settings()

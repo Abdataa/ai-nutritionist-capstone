@@ -1,44 +1,23 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
 from .database import Base
 
 class User(Base):
     __tablename__ = "users"
-
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
-    password_hash = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    full_name = Column(String(255), nullable=True)
 
-    mealplans = relationship("MealPlan", back_populates="owner")
+    # relationship to clients (one coach -> many clients) if needed
+    clients = relationship("Client", back_populates="coach")
 
-
-class MealPlan(Base):
-    __tablename__ = "mealplans"
-
+class Client(Base):
+    __tablename__ = "clients"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    goal = Column(String, nullable=False)
-    diet_type = Column(String, nullable=False)
-    daily_calories = Column(Integer, nullable=False)
-    macro_protein = Column(Integer, nullable=False)
-    macro_carbs = Column(Integer, nullable=False)
-    macro_fats = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    name = Column(String(255), nullable=False)
+    notes = Column(String, nullable=True)
+    coach_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    owner = relationship("User", back_populates="mealplans")
-    history = relationship("MealHistory", back_populates="mealplan")
-
-
-class MealHistory(Base):
-    __tablename__ = "mealhistory"
-
-    id = Column(Integer, primary_key=True, index=True)
-    mealplan_id = Column(Integer, ForeignKey("mealplans.id"))
-    day_number = Column(Integer, nullable=False)
-    meals_json = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    mealplan = relationship("MealPlan", back_populates="history")
+    coach = relationship("User", back_populates="clients")

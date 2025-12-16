@@ -1,72 +1,20 @@
-from pydantic import BaseModel
-from typing import Optional, List, Dict
-from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field
 
-
-# ----------- USER AUTH SCHEMAS -----------
-
+# --- User schemas ---
 class UserCreate(BaseModel):
-    name: str
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(min_length=8)
+    full_name: str | None = None
 
-
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-
-class UserResponse(BaseModel):
+class UserOut(BaseModel):
     id: int
-    name: str
-    email: str
-    created_at: datetime
+    email: EmailStr
+    full_name: str | None = None
+    is_active: bool
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
-
-# ----------- MEAL PLAN SCHEMAS -----------
-
-class Macros(BaseModel):
-    protein: int
-    carbs: int
-    fats: int
-
-
-class MealPlanCreate(BaseModel):
-    goal: str
-    daily_calories: int
-    diet_type: str
-    macros: Macros
-
-
-class MealPlanResponse(BaseModel):
-    id: int
-    goal: str
-    diet_type: str
-    daily_calories: int
-    macro_protein: int
-    macro_carbs: int
-    macro_fats: int
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
-# ----------- MEAL HISTORY SCHEMAS -----------
-
-class MealHistoryResponse(BaseModel):
-    id: int
-    day_number: int
-    meals_json: str
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
-class MealPlanFullResponse(BaseModel):
-    mealplan: MealPlanResponse
-    history: List[MealHistoryResponse]
+# --- Token schema ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"

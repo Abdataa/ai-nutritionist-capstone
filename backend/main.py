@@ -1,32 +1,17 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from database.database import engine
-from database.models import Base
-Base.metadata.create_all(bind=engine)
+from database import database as db
+from routers import auth
 
+app = FastAPI(title="AI-Nutritionist Backend - Week1")
 
-from routers import mealplan, auth
-from core.config import settings
+# include routers
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
-app = FastAPI(
-    title="AI Nutritionist Backend",
-    description="LLM-powered nutritional recommendation service",
-    version="1.0.0"
-)
-
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],   # change later for production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# ---Routers---
-app.include_router(mealplan.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
+@app.on_event("startup")
+def on_startup():
+    # Create DB tables
+    db.Base.metadata.create_all(bind=db.engine)
 
 @app.get("/")
-def home():
-    return {"message": "AI Nutritionist Backend Running"}
+def root():
+    return {"message": "AI-Nutritionist backend (Week 1) is running"}
