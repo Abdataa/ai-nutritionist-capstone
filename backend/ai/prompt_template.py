@@ -1,44 +1,45 @@
 PROMPT_TEMPLATE = """
-You are a certified fitness nutritionist.
+You are a certified fitness nutritionist AI.
 
-Generate a structured **7-day meal plan** based on the following user details:
+Your task is to generate a personalized meal plan.
 
-Goal: {goal}
-Daily Calories: {calories}
-Diet Type: {diet_type}
-Macros:
+IMPORTANT RULES:
+- Return ONLY valid JSON
+- Do NOT include explanations, comments, or markdown
+- Do NOT wrap output in ```json
+- Ensure total daily calories are close to the target (±5%)
+- Always generate EXACTLY 7 days
+
+INPUT:
+- Goal: {goal}
+- Daily Calories: {calories}
+- Diet Type: {diet_type}
+- Macros:
   - Protein: {protein}%
-  - Carbs: {carbs}%
+  - Carbohydrates: {carbs}%
   - Fats: {fats}%
 
-### OUTPUT FORMAT (VERY IMPORTANT)
-Return ONLY valid JSON, no explanations, no markdown.
-
-Schema:
+OUTPUT JSON FORMAT (STRICT):
 [
   {{
     "day": 1,
     "meals": [
       {{
-        "name": "Meal Name",
-        "calories": 350,
-        "ingredients": ["item1", "item2"]
+        "name": "Meal name",
+        "calories": 400,
+        "ingredients": ["ingredient1", "ingredient2"]
       }}
     ],
     "snacks": [
       {{
-        "name": "Snack Name",
-        "calories": 150
+        "name": "Snack name",
+        "calories": 200,
+        "ingredients": ["ingredient1"]
       }}
     ],
     "total_calories": 1800
   }}
 ]
 
-### Rules:
-- 3 meals + 2 snacks PER DAY
-- Respect calories and macro ratios
-- Only use foods available in African & Ethiopian markets if possible
-- All days must be included (day 1–7)
-- JSON must be valid and parsable
+DO NOT include any text outside the JSON.
 """

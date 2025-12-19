@@ -1,7 +1,9 @@
 from openai import OpenAI
 from core.config import settings
 from ai.prompt_template import PROMPT_TEMPLATE
+from ai.validator import validate_meal_plan
 import asyncio
+import json
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
@@ -22,6 +24,33 @@ async def generate_meal_plan(request):
     )
 
     try:
-        return response.choices[0].message.content
+        content = response.choices[0].message.content
     except (IndexError, AttributeError) as e:
         raise RuntimeError("Failed to generate meal plan: invalid response structure") from e
+
+    try:
+        parsed_output = json.loads(content)
+    except Exception as e:
+        return {
+            "error": "Failed to parse meal plan output as JSON",
+            "reason": str(e),
+            "raw_output": content
+        }
+
+    is_valid, message = validate_meal_plan(
+        parsed_output,
+        target_calories=request.daily_calories
+    )
+
+    if not is_valid:
+        return {
+            "error": "Meal plan validation failed",
+            "reason": message,
+            "raw_output": parsed_output
+        }
+
+    return parsed_output
+
+
+
+
