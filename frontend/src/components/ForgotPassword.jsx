@@ -11,6 +11,7 @@ const ForgotPassword = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { loading, error } = useAuth();
   const { theme } = useTheme();
