@@ -7,6 +7,9 @@ const MealPlanner = () => {
   const [mealType, setMealType] = useState('breakfast');
   const [mealPlans, setMealPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMealPlanId, setSelectedMealPlanId] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null);
   
   useEffect(() => {
     const fetchMealPlans = async () => {
@@ -42,6 +45,53 @@ const MealPlanner = () => {
     
     fetchMealPlans();
   }, [isAuthenticated]);
+  
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    if (uploadStatus) {
+      setUploadStatus(null); // Clear previous status
+    }
+  };
+  
+  const handleFileUpload = async () => {
+    if (!selectedMealPlanId || !selectedFile) {
+      setUploadStatus({ success: false, message: 'Please select both a meal plan and a file.' });
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('No access token found');
+      }
+      
+      const response = await fetch(`http://localhost:8000/api/mealplan/${selectedMealPlanId}/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setUploadStatus({ success: true, message: data.message });
+        // Reset form
+        setSelectedFile(null);
+        document.querySelector('input[type="file"]').value = '';
+      } else {
+        setUploadStatus({ success: false, message: data.detail || 'Upload failed' });
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setUploadStatus({ success: false, message: 'Error uploading file: ' + error.message });
+    }
+  };
   
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   
@@ -196,6 +246,72 @@ const MealPlanner = () => {
             </div>
           </div>
         </div>
+        
+        {/* File Upload Section for Meal Plans */}
+        {mealPlans.length > 0 && (
+          <div className="mt-12 bg-white/10 dark:bg-gray-800/30 backdrop-blur-md p-8 rounded-2xl border border-white/20 dark:border-gray-700">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-white dark:text-white mb-2">Upload Meal Plan Documents</h3>
+              <p className="text-gray-300 dark:text-gray-300">
+                Upload documents related to your meal plans such as dietary restrictions, health records, or meal tracking
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 dark:text-gray-300 mb-3">
+                  Select Meal Plan
+                </label>
+                <select 
+                  value={selectedMealPlanId || ''}
+                  onChange={(e) => setSelectedMealPlanId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-white/5 dark:bg-gray-700/50 text-white dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select a meal plan</option>
+                  {mealPlans.map((plan) => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.goal} - {plan.diet_type} ({plan.daily_calories} cal)
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 dark:text-gray-300 mb-3">
+                  Choose File
+                </label>
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-white/5 dark:bg-gray-700/50 text-white dark:text-white"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xls,.xlsx"
+                />
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-center">
+              <button 
+                onClick={handleFileUpload}
+                disabled={!selectedMealPlanId || !selectedFile}
+                className={`px-8 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  !selectedMealPlanId || !selectedFile 
+                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 transform hover:scale-105'
+                }`}
+              >
+                Upload File
+              </button>
+            </div>
+            
+            {uploadStatus && (
+              <div className={`mt-4 p-4 rounded-xl text-center ${
+                uploadStatus.success ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
+              }`}>
+                {uploadStatus.message}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

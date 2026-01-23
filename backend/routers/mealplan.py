@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from pathlib import Path
+import uuid
 from database.schemas import MealPlanCreate, MealPlanResponse, MealPlanFullResponse
 from database.database import get_db
 from database.models import MealPlan, MealHistory, User
@@ -262,4 +265,160 @@ def delete_meal_plan(
     db.commit()
     
     return {"message": "Meal plan deleted successfully"}
+
+
+@router.post("/{mealplan_id}/upload")
+async def upload_mealplan_file(
+    mealplan_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Upload a file associated with a specific meal plan - user must own the meal plan"""
+    # Verify that the meal plan belongs to the current user
+    meal_plan = db.query(MealPlan).filter(
+        MealPlan.id == mealplan_id,
+        MealPlan.user_id == current_user.id
+    ).first()
+    
+    if not meal_plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Meal plan not found or you don't have permission to access it"
+        )
+    
+    # Define allowed file types and size limits
+    allowed_extensions = {"pdf", "doc", "docx", "jpg", "jpeg", "png", "txt", "xls", "xlsx"}
+    max_file_size = 10 * 1024 * 1024  # 10MB limit
+    
+    # Check file extension
+    file_extension = Path(file.filename).suffix[1:].lower()
+    if file_extension not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File type not allowed. Allowed types: {', '.join(allowed_extensions)}"
+        )
+    
+    # Check file size
+    file_content = await file.read()
+    if len(file_content) > max_file_size:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File too large. Maximum size is 10MB."
+        )
+    
+    # Reset file pointer
+    await file.seek(0)
+    
+    # Create uploads directory if it doesn't exist
+    uploads_dir = Path("uploads")
+    uploads_dir.mkdir(exist_ok=True)
+    
+    # Create mealplan-specific directory
+    mealplan_dir = uploads_dir / f"mealplan_{mealplan_id}"
+    mealplan_dir.mkdir(exist_ok=True)
+    
+    # Generate unique filename
+    unique_filename = f"{uuid.uuid4()}_{file.filename}"
+    file_path = mealplan_dir / unique_filename
+    
+    # Save the file
+    with open(file_path, "wb") as buffer:
+        buffer.write(file_content)
+    
+    return {
+        "filename": file.filename,
+        "file_path": str(file_path),
+        "file_size": len(file_content),
+        "mealplan_id": mealplan_id,
+        "message": "File uploaded successfully and associated with meal plan"
+    }
+
+
+@router.get("/{mealplan_id}/files")
+def get_mealplan_files(
+    mealplan_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get list of files associated with a specific meal plan - user must own the meal plan"""
+    # Verify that the meal plan belongs to the current user
+    meal_plan = db.query(MealPlan).filter(
+        MealPlan.id == mealplan_id,
+        MealPlan.user_id == current_user.id
+    ).first()
+    
+    if not meal_plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Meal plan not found or you don't have permission to access it"
+        )
+    
+    # Create the mealplan-specific directory path
+    mealplan_dir = Path(f"uploads/mealplan_{mealplan_id}")
+    
+    if not mealplan_dir.exists():
+        return {"files": [], "message": "No files found for this meal plan"}
+    
+    # List all files in the directory
+    files = []
+    for file_path in mealplan_dir.iterdir():
+        if file_path.is_file():
+            files.append({
+                "filename": file_path.name,
+                "file_path": str(file_path),
+                "size": file_path.stat().st_size,
+                "created_at": file_path.stat().st_ctime
+            })
+    
+    return {
+        "mealplan_id": mealplan_id,
+        "files": files,
+        "count": len(files)
+    }
+
+
+@router.get("/{mealplan_id}/files/{filename}")
+def download_mealplan_file(
+    mealplan_id: int,
+    filename: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Download a specific file associated with a meal plan - user must own the meal plan"""
+    # Verify that the meal plan belongs to the current user
+    meal_plan = db.query(MealPlan).filter(
+        MealPlan.id == mealplan_id,
+        MealPlan.user_id == current_user.id
+    ).first()
+    
+    if not meal_plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Meal plan not found or you don't have permission to access it"
+        )
+    
+    # Create the file path
+    file_path = Path(f"uploads/mealplan_{mealplan_id}/{filename}")
+    
+    # Security check: ensure the path doesn't go outside the uploads directory
+    try:
+        file_path.resolve().relative_to(Path("uploads").resolve())
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file path"
+        )
+    
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found"
+        )
+    
+    return FileResponse(
+        path=file_path,
+        media_type="application/octet-stream",
+        filename=file_path.name
+    )
 

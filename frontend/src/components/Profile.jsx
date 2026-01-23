@@ -5,7 +5,7 @@ import { updateUserProfile } from '../services/authService';
 
 const Profile = () => {
   const { theme } = useTheme();
-  const { user, isAuthenticated, fetchUserData, loading, debouncedFetchUserData, resetTokenValidity } = useAuth();
+  const { user, isAuthenticated, fetchUserData, loading, debouncedFetchUserData, resetTokenValidity, updateUser } = useAuth();
   
   useEffect(() => {
     if (isAuthenticated && (!user || !user.id)) {
@@ -123,6 +123,27 @@ const Profile = () => {
         // Refresh user data to get the updated profile picture
         if (debouncedFetchUserData) {
           debouncedFetchUserData();
+        }
+        
+        // Update user in auth context if available
+        if (fetchUserData) {
+          fetchUserData();
+        }
+        
+        // Update user in auth context with new profile picture
+        if (user && updateUser) {
+          // Update the user in the auth context with the new profile picture
+          // This ensures the navbar and other components get the updated profile picture
+          const updatedUserData = {
+            ...user,
+            profile_picture: data.file_path
+          };
+          
+          // Use the updateUser function to update the user in the store
+          updateUser({ profile_picture: data.file_path });
+          
+          // Update the profile picture in the component state
+          setProfilePicture(`http://localhost:8000${data.file_path}`);
         }
       } else {
         alert(`Error uploading profile picture: ${data.detail || 'Upload failed'}`);

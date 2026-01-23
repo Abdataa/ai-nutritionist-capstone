@@ -59,6 +59,13 @@ export const useAuth = () => {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          profile_picture: result.user.profile_picture,
+          height: result.user.height,
+          weight: result.user.weight,
+          age: result.user.age,
+          gender: result.user.gender,
+          activity_level: result.user.activity_level,
+          goal: result.user.goal,
         }));
         // Reset the knownInvalidToken flag since we successfully got user data
         knownInvalidToken = false;
@@ -117,6 +124,13 @@ export const useAuth = () => {
             email: userDataResult.user.email,
             name: userDataResult.user.name,
             role: userDataResult.user.role,
+            profile_picture: userDataResult.user.profile_picture,
+            height: userDataResult.user.height,
+            weight: userDataResult.user.weight,
+            age: userDataResult.user.age,
+            gender: userDataResult.user.gender,
+            activity_level: userDataResult.user.activity_level,
+            goal: userDataResult.user.goal,
           }));
           // Reset the knownInvalidToken flag since login was successful
           knownInvalidToken = false;
@@ -156,6 +170,13 @@ export const useAuth = () => {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          profile_picture: result.user.profile_picture,
+          height: result.user.height,
+          weight: result.user.weight,
+          age: result.user.age,
+          gender: result.user.gender,
+          activity_level: result.user.activity_level,
+          goal: result.user.goal,
         }));
 
         return { success: true, user: result.user };
@@ -204,6 +225,13 @@ export const useAuth = () => {
                 email: result.user.email,
                 name: result.user.name,
                 role: result.user.role,
+                profile_picture: result.user.profile_picture,
+                height: result.user.height,
+                weight: result.user.weight,
+                age: result.user.age,
+                gender: result.user.gender,
+                activity_level: result.user.activity_level,
+                goal: result.user.goal,
               }));
               return true;
             } else {
@@ -294,5 +322,6 @@ export const useAuth = () => {
     safeCheckAuthStatus,
     quickCheckAuthStatus,
     resetTokenValidity,
+    updateUser: (userData) => dispatch(setUser({ ...user, ...userData })),
   };
 };
