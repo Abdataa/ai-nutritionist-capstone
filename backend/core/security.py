@@ -1,10 +1,12 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+security_scheme = HTTPBearer()
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -27,3 +29,16 @@ def decode_access_token(token: str) -> dict:
         return payload
     except jwt.PyJWTError:
         return {}
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)) -> dict:
+    """
+    FastAPI dependency to get the current authenticated user from JWT token.
+    """
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return payload

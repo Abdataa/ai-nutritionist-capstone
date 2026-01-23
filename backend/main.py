@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from database import database as db
 from routers import auth
+from routers import clients, nutrition, macros
 
 app = FastAPI(title="AI-Nutritionist Backend - Week1")
 
@@ -15,3 +16,7 @@ def on_startup():
 @app.get("/")
 def root():
     return {"message": "AI-Nutritionist backend (Week 1) is running"}
+
+app.include_router(clients.router, tags=["clients"])
+app.include_router(nutrition.router, tags=["nutrition"])
+app.include_router(macros.router, tags=["macros"])

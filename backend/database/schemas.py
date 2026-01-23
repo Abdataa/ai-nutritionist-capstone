@@ -18,3 +18,28 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class ClientCreate(BaseModel):
+ name: str
+ age: int
+ gender: str
+ height_cm: float
+ weight_kg: float
+
+
+class ClientResponse(ClientCreate):
+ id: int
+ model_config = {"from_attributes": True}
+
+
+class NutritionInputSchema(BaseModel):
+ goal: str
+ activity_level: str
+ diet_type: str
+
+
+class MacroResponse(BaseModel):
+ calories: float
+ protein_g: float
+ carbs_g: float
+ fats_g: float
