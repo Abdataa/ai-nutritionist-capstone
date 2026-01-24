@@ -95,3 +95,11 @@ docs/~$*.docx  # Word temp files
 # -------------------------
 ehthumbs.db
 Icon?
+#--fine-tunned model files--
+ai-model/fine-tuned/
+*.safetensors
+*.ckpt
+*.bin
+ai-model/fine-tuned/
+ai-model/inference/*.pdf
+ai-model/inference/*.docx

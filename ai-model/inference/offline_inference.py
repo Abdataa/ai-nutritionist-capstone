@@ -1,9 +1,8 @@
+#ai-model/inference/offline_inference.py
 import json
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 
 # ----------------------------
 # CONFIG
@@ -16,53 +15,54 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 FORBIDDEN = {
     "vegan": ["chicken", "beef", "fish", "salmon", "tuna", "egg", "milk", "cheese", "honey"],
     "vegetarian": ["chicken", "beef", "fish", "salmon", "tuna"],
-    "omnivore": []  # no restriction
+    "omnivore": []
 }
 
 # ----------------------------
 # LOAD MODEL
-# ----------------------------
+
+
+
 tokenizer = AutoTokenizer.from_pretrained(LORA_PATH)
-model = AutoModelForCausalLM.from_pretrained(
+
+#  IMPORTANT: NO device_map, NO offloading
+base_model = AutoModelForCausalLM.from_pretrained(
     BASE_MODEL,
-    torch_dtype=torch.float16,
-    device_map="auto"
+    torch_dtype=torch.float32,   # CPU-safe
+    low_cpu_mem_usage=False
 )
-model = PeftModel.from_pretrained(model, LORA_PATH)
+
+model = PeftModel.from_pretrained(
+    base_model,
+    LORA_PATH,
+    is_trainable=False
+)
+
 model.eval()
 
+
 # ----------------------------
-# POST-GENERATION VALIDATION
+# VALIDATION
 # ----------------------------
-def validate_meal_plan(text, diet_type):
-    forbidden_words = FORBIDDEN.get(diet_type.lower(), [])
-    for word in forbidden_words:
+def validate_meal_plan(text: str, diet_type: str):
+    forbidden = FORBIDDEN.get(diet_type.lower(), [])
+    for word in forbidden:
         if word in text.lower():
             return False, f"Forbidden item detected: {word}"
     return True, "Valid"
 
 # ----------------------------
-# PDF EXPORT
+# GENERATION
 # ----------------------------
-def export_pdf(text, filename="meal_plan.pdf"):
-    c = canvas.Canvas(filename, pagesize=letter)
-    width, height = letter
-    margin = 40
-    lines = text.splitlines()
-    y = height - margin
-    for line in lines:
-        c.drawString(margin, y, line)
-        y -= 14
-        if y < margin:
-            c.showPage()
-            y = height - margin
-    c.save()
-    print(f" PDF exported as {filename}")
-
-# ----------------------------
-# GENERATION FUNCTION
-# ----------------------------
-def generate_meal_plan(goal, calories, diet_type, protein, carbs, fats, max_tokens=500):
+def generate_meal_plan(
+    goal: str,
+    calories: int,
+    diet_type: str,
+    protein: int,
+    carbs: int,
+    fats: int,
+    max_tokens: int = 500
+):
     prompt = f"""
 ### Instruction:
 Generate a 7-day meal plan.
@@ -70,13 +70,12 @@ Generate a 7-day meal plan.
 ### Input:
 Goal: {goal}
 Calories: {calories}
-Diet: {diet_type} (STRICT — respect all diet rules)
+Diet: {diet_type} (STRICT)
 Macros: Protein {protein}%, Carbs {carbs}%, Fats {fats}%
 
 Rules:
 - ONLY allowed foods for the diet
-- If unsure, use tofu, legumes, vegetables, grains, nuts
-- Return JSON with meals, snacks, total_calories
+- Return JSON only
 """
 
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
@@ -91,25 +90,30 @@ Rules:
         )
 
     decoded = tokenizer.decode(output[0], skip_special_tokens=True)
-    # Extract JSON part if possible
+
+    # Try extracting JSON
     try:
         start = decoded.find("[")
         end = decoded.rfind("]") + 1
-        meal_plan_json = decoded[start:end]
-        parsed = json.loads(meal_plan_json)
+        parsed = json.loads(decoded[start:end])
     except Exception:
         parsed = decoded
 
-    # Validate meals
-    valid, message = validate_meal_plan(decoded, diet_type)
-    return parsed, valid, message
+    valid, msg = validate_meal_plan(decoded, diet_type)
+
+    return {
+        "meal_plan": parsed,
+        "valid": valid,
+        "message": msg,
+        "raw_output": decoded
+    }
+
 
 # ----------------------------
-# MAIN (example usage)
+# CLI TEST
 # ----------------------------
 if __name__ == "__main__":
-    # Example: vegan fat loss
-    plan, valid, msg = generate_meal_plan(
+    result = generate_meal_plan(
         goal="Fat loss",
         calories=1800,
         diet_type="Vegan",
@@ -117,10 +121,6 @@ if __name__ == "__main__":
         carbs=30,
         fats=30
     )
-    print("VALIDATION:", valid, msg)
-    print("---- MEAL PLAN ----")
-    print(plan)
 
-    # Export PDF
-    if valid:
-        export_pdf(str(plan), filename="meal_plan_vegan.pdf")
+    print("VALID:", result["valid"], result["message"])
+    print(json.dumps(result["meal_plan"], indent=2))
