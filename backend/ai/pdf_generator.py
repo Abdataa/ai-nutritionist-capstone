@@ -9,7 +9,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import json
-from datetime import datetime
+from datetime import datetime 
 
 
 def create_meal_plan_pdf(plan_data: dict, output_path: str):
