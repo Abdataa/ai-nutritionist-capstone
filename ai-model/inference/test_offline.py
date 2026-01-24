@@ -9,6 +9,7 @@ result = generate_meal_plan(
     fats=25
 )
 
+
 print("VALID:", result["valid"])
 print(result["message"])
 print(result["meal_plan"])

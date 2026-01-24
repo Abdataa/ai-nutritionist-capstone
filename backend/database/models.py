@@ -1,6 +1,6 @@
 # database/models.py:
 
-# backend/database/models.py (REPLACE your current file with this)
+# backend/database/models.py (file with this)
 
 from sqlalchemy import Column, Integer, String, DateTime, JSON, Text, ForeignKey
 from sqlalchemy.orm import relationship
