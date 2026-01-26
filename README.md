@@ -6,7 +6,7 @@ The project is built as a full-stack application with an AI-driven backend.
 
 ---
 
-## 🚀 Project Overview
+## 🌐 Project Overview  🌐
 This capstone project combines:
 - A **FastAPI backend** for business logic and APIs
 - A **React frontend** for user interaction
@@ -124,3 +124,4 @@ ai-nutritionist-capstone/
 - Meal plans are generated dynamically using LLM prompts
 - Outputs are structured as valid JSON for easy parsing
 - The project follows clean code and modular design principles
+
