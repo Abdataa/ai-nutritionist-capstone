@@ -101,5 +101,9 @@ ai-model/fine-tuned/
 *.ckpt
 *.bin
 ai-model/fine-tuned/
-ai-model/inference/*.pdf
-ai-model/inference/*.docx
+
+# Ignore frontend entirely
+frontend/
+node_modules/
+build/
+dist/

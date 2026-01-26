@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 import secrets
 import string
 import os
+from database.database import get_db
 
 # Get settings from environment or use defaults
 SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-this-in-production")
@@ -49,6 +50,34 @@ class TokenData(BaseModel):
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against a hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
+
+
+
+def generate_password(length: int = 12) -> str:
+    """Generate a strong random password."""
+    import secrets
+    import string
+    
+    # Define character sets
+    letters = string.ascii_letters
+    digits = string.digits
+    special_chars = "!@#$%^&*()-_=+"
+    
+    # Ensure at least one of each type
+    password = [
+        secrets.choice(letters),
+        secrets.choice(digits),
+        secrets.choice(special_chars)
+    ]
+    
+    # Fill the rest with random choices from all sets
+    all_chars = letters + digits + special_chars
+    password += [secrets.choice(all_chars) for _ in range(length - 3)]
+    
+    # Shuffle the password
+    secrets.SystemRandom().shuffle(password)
+    
+    return ''.join(password)
 
 
 def get_password_hash(password: str) -> str:
@@ -132,9 +161,9 @@ def decode_token(token: str) -> Dict[str, Any]:
 def get_db():
     """Get database session."""
     # This is a placeholder - you need to import the real get_db
-    # from database.database import get_db
-    # return get_db()
-    raise NotImplementedError("You need to implement get_db or import it")
+    from database.database import get_db
+    return get_db()
+
 
 
 # Authentication dependencies
@@ -190,8 +219,8 @@ async def get_current_active_user(
     """
     # For now, just return the user
     # Add any active user checks here (e.g., is_active flag)
-    # if not current_user.is_active:
-    #     raise HTTPException(status_code=400, detail="Inactive user")
+    #if not current_user.is_active:
+        # raise HTTPException(status_code=400, detail="Inactive user")
     
     return current_user
 

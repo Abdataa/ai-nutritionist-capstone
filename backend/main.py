@@ -1,5 +1,5 @@
 """
-Main FastAPI application - fixed to include all routers.
+Main FastAPI application - fixed order for imports, logging, DB init, app creation and router loading.
 """
 
 from fastapi import FastAPI
@@ -8,6 +8,10 @@ import uvicorn
 import logging
 import sys
 from pathlib import Path
+from database.database import Base, engine
+from database import models
+
+Base.metadata.create_all(bind=engine)
 
 # Add current directory to path for imports
 sys.path.append(str(Path(__file__).parent))
@@ -15,6 +19,9 @@ sys.path.append(str(Path(__file__).parent))
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Create DB tables after models are imported
+Base.metadata.create_all(bind=engine)
 
 # Create FastAPI app
 app = FastAPI(
@@ -35,21 +42,38 @@ app.add_middleware(
 )
 
 # Import routers
+
+# Import and include routers with individual error handling
 try:
-    # Import routers
-    from routers import auth, mealplan, pdf, clients
-    
-    # Include them with proper prefixes
+    from routers import auth
     app.include_router(auth.router)
-    app.include_router(mealplan.router)
-    app.include_router(pdf.router)
-    app.include_router(clients.router)
-    
-    logger.info("✅ All routers loaded successfully")
-    
+    logger.info(" Auth router loaded")
 except ImportError as e:
-    logger.error(f"❌ Failed to import routers: {e}")
-    logger.info("Running in minimal mode without routers")
+    logger.error(f" Failed to import auth router: {e}")
+
+try:
+    from routers import mealplan
+    app.include_router(mealplan.router)
+    logger.info("MealPlan router loaded")
+except ImportError as e:
+    logger.error(f"Failed to import mealplan router: {e}")
+    import traceback
+    traceback.print_exc()
+
+try:
+    from routers import pdf
+    app.include_router(pdf.router)
+    logger.info(" PDF router loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ PDF router not loaded: {e}")
+
+try:
+    from routers import clients
+    app.include_router(clients.router)
+    logger.info(" Clients router loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Clients router not loaded: {e}")
+
 
 # Root endpoint
 @app.get("/")

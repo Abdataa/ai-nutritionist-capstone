@@ -2,7 +2,10 @@
 Utility functions for meal plan processing.
 """
 
-def calculate_macros(meal_plan: dict) -> tuple:
+import json
+from typing import Dict, Tuple, Any
+
+def calculate_macros(meal_plan: Dict[str, Any]) -> Tuple[float, Dict[str, float]]:
     """Calculate total calories and macro breakdown from meal plan."""
     total_calories = 0
     total_protein = 0
@@ -10,13 +13,19 @@ def calculate_macros(meal_plan: dict) -> tuple:
     total_fats = 0
     
     try:
-        for day in meal_plan.get("days", []):
-            for meal in day.get("meals", []):
-                total_calories += meal.get("calories", 0)
-                macros = meal.get("macros", {})
-                total_protein += macros.get("protein_g", 0)
-                total_carbs += macros.get("carbs_g", 0)
-                total_fats += macros.get("fats_g", 0)
+        if isinstance(meal_plan, dict):
+            days = meal_plan.get("days", [])
+            for day in days:
+                if isinstance(day, dict):
+                    meals = day.get("meals", [])
+                    for meal in meals:
+                        if isinstance(meal, dict):
+                            total_calories += meal.get("calories", 0)
+                            macros = meal.get("macros", {})
+                            if isinstance(macros, dict):
+                                total_protein += macros.get("protein_g", 0)
+                                total_carbs += macros.get("carbs_g", 0)
+                                total_fats += macros.get("fats_g", 0)
         
         # Calculate percentages
         if total_calories > 0:
@@ -36,3 +45,30 @@ def calculate_macros(meal_plan: dict) -> tuple:
         }
     except Exception:
         return 0, {}
+
+def extract_grocery_list(meal_plan: Dict[str, Any]) -> Dict[str, float]:
+    """Extract grocery list from meal plan."""
+    groceries = {}
+    
+    try:
+        if isinstance(meal_plan, dict):
+            days = meal_plan.get("days", [])
+            for day in days:
+                if isinstance(day, dict):
+                    meals = day.get("meals", [])
+                    for meal in meals:
+                        if isinstance(meal, dict):
+                            ingredients = meal.get("ingredients", [])
+                            for ingredient in ingredients:
+                                if isinstance(ingredient, dict):
+                                    name = ingredient.get("name", "").lower()
+                                    quantity = ingredient.get("quantity", 0)
+                                    unit = ingredient.get("unit", "")
+                                    
+                                    if name:
+                                        key = f"{name} ({unit})" if unit else name
+                                        groceries[key] = groceries.get(key, 0) + float(quantity)
+    except Exception:
+        pass
+    
+    return groceries

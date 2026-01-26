@@ -2,7 +2,7 @@
 API router for meal plan generation endpoints.
 Handles requests for creating, retrieving, and managing meal plans.
 """
-
+# backend/routers/mealplan.py
 from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks
 from fastapi.responses import JSONResponse, FileResponse
@@ -12,7 +12,7 @@ from datetime import datetime
 import uuid
 
 # Import dependencies
-from core.security import get_current_user
+from core.security import get_current_user,get_current_active_user
 from database.database import get_db
 from database.models import User
 from database.models import MealPlan as MealPlanModel
@@ -262,7 +262,7 @@ async def get_meal_plan(
 
 @router.delete("/{plan_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_meal_plan(
-    plan_id: str,
+    plan_id:str,
     current_user: User = Depends(get_current_user),
     db = Depends(get_db)
 ):

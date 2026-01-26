@@ -3,17 +3,25 @@ PDF generation for meal plans.
 """
 
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import json
-from datetime import datetime 
+from datetime import datetime
+import tempfile
+import os
 
 
-def create_meal_plan_pdf(plan_data: dict, output_path: str):
+def create_meal_plan_pdf(plan_data: dict, output_path: str = None):
     """Create a professional PDF document for a meal plan."""
+    
+    if output_path is None:
+        # Create temp file
+        temp_dir = tempfile.gettempdir()
+        filename = f"meal_plan_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        output_path = os.path.join(temp_dir, filename)
     
     # Create document
     doc = SimpleDocTemplate(
@@ -61,14 +69,14 @@ def create_meal_plan_pdf(plan_data: dict, output_path: str):
     
     # Title
     story.append(Paragraph("AI Nutritionist - Personalized Meal Plan", title_style))
-    story.append(Paragraph(f"Generated for: {plan_data['client_name']}", subtitle_style))
+    story.append(Paragraph(f"Generated for: {plan_data.get('client_name', 'Client')}", subtitle_style))
     story.append(Spacer(1, 20))
     
     # Client info table
     client_info = [
-        ["Goal:", plan_data['goal']],
-        ["Target Calories:", str(plan_data['target_calories'])],
-        ["Diet Type:", plan_data['diet_type']],
+        ["Goal:", plan_data.get('goal', 'General fitness')],
+        ["Target Calories:", str(plan_data.get('target_calories', 2000))],
+        ["Diet Type:", plan_data.get('diet_type', 'Balanced')],
         ["Generated:", plan_data.get('created_at', datetime.now().strftime('%Y-%m-%d'))]
     ]
     
@@ -91,44 +99,50 @@ def create_meal_plan_pdf(plan_data: dict, output_path: str):
     meal_plan = plan_data.get('meal_plan', {})
     days = meal_plan.get('days', [])
     
-    for day in days:
-        story.append(Paragraph(f"<b>{day.get('day', 'Day')}</b> - Total Calories: {day.get('total_calories', 0)}", normal_style))
+    for day in days[:3]:  # Show only first 3 days in PDF
+        day_name = day.get('day', 'Day')
+        story.append(Paragraph(f"<b>{day_name}</b> - Total Calories: {day.get('total_calories', 0)}", normal_style))
         
         meals = day.get('meals', [])
-        meal_data = [["Time", "Meal", "Description", "Calories"]]
-        
-        for meal in meals:
-            meal_data.append([
-                meal.get('time', ''),
-                meal.get('meal', ''),
-                meal.get('description', '')[:50] + '...' if len(meal.get('description', '')) > 50 else meal.get('description', ''),
-                str(meal.get('calories', 0))
-            ])
-        
-        meal_table = Table(meal_data, colWidths=[0.8*inch, 1*inch, 3*inch, 0.8*inch])
-        meal_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4CAF50")),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
-            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey])
-        ]))
-        
-        story.append(meal_table)
-        story.append(Spacer(1, 15))
+        if meals:
+            meal_data = [["Time", "Meal", "Description", "Calories"]]
+            
+            for meal in meals:
+                description = meal.get('description', '')
+                if len(description) > 50:
+                    description = description[:50] + '...'
+                
+                meal_data.append([
+                    meal.get('time', ''),
+                    meal.get('meal', ''),
+                    description,
+                    str(meal.get('calories', 0))
+                ])
+            
+            meal_table = Table(meal_data, colWidths=[0.8*inch, 1*inch, 3*inch, 0.8*inch])
+            meal_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4CAF50")),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ]))
+            
+            story.append(meal_table)
+            story.append(Spacer(1, 15))
     
     # Grocery list
-    if plan_data.get('grocery_list'):
+    grocery_list = plan_data.get('grocery_list', {})
+    if grocery_list:
         story.append(Paragraph("Grocery Shopping List", section_style))
         
-        grocery_items = list(plan_data['grocery_list'].items())
+        grocery_items = list(grocery_list.items())
         grocery_data = [["Item", "Quantity"]]
         
-        for item, quantity in grocery_items[:20]:  # Limit to 20 items
-            grocery_data.append([item, str(quantity)])
+        for item, quantity in grocery_items[:15]:  # Limit to 15 items
+            grocery_data.append([str(item), str(quantity)])
         
         grocery_table = Table(grocery_data, colWidths=[4*inch, 1*inch])
         grocery_table.setStyle(TableStyle([
@@ -152,3 +166,5 @@ def create_meal_plan_pdf(plan_data: dict, output_path: str):
     
     # Build PDF
     doc.build(story)
+    
+    return output_path

@@ -1,6 +1,7 @@
 """
 Authentication router for user registration, login, and token management.
 """
+#backend/routers/auth.py
 
 from datetime import timedelta
 from typing import Any
@@ -26,7 +27,7 @@ from core.security import (
 from core.config import settings
 from database.database import get_db
 from database.models import User
-from schemas.user import UserCreate, UserResponse, UserLogin
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
