@@ -1,127 +1,244 @@
-# AI Nutritionist Capstone Project
+🥗 AI Nutritionist – Capstone Project
 
-An AI-powered nutrition assistant that generates personalized 7-day meal plans
-based on user goals, calorie targets, diet preferences, and macro distribution.
-The project is built as a full-stack application with an AI-driven backend.
+An AI-powered nutrition assistant that generates personalized 7-day meal plans based on user goals, calorie targets, dietary preferences, and macronutrient distribution. This project is designed as a production-ready full-stack application with an AI-driven backend, emphasizing clean architecture, scalability, and real-world usability.
+
 
 ---
 
-## 🌐 Project Overview  🌐
-This capstone project combines:
-- A **FastAPI backend** for business logic and APIs
-- A **React frontend** for user interaction
-- **Large Language Models (LLMs)** for intelligent meal plan generation
-- A modular architecture designed for scalability and experimentation
+🌟 Why This Project Stands Out
+
+🎯 Highly Personalized meal planning powered by AI
+
+🤖 LLM-driven intelligence with structured JSON outputs
+
+🧱 Modular, scalable architecture suitable for future expansion
+
+🌐 End-to-end full-stack implementation (Backend + Frontend + AI)
+
+📊 Designed to meet capstone project standards and industry best practices
+
+
 
 ---
 
-## 🛠️ Tech Stack
-- **Backend:** Python, FastAPI
-- **Frontend:** React
-- **AI / LLMs:** TinyLLaMA / GPT-based models
-- **Database:** SQL-based (via SQLAlchemy)
-- **Docs & Guidelines:** Capstone project standards
+🌐 Project Overview
+
+This capstone project seamlessly integrates modern web technologies with artificial intelligence:
+
+FastAPI Backend – Handles business logic, authentication, and APIs
+
+React Frontend – Provides an intuitive and responsive user experience
+
+LLMs (TinyLLaMA / GPT-based models) – Generate intelligent, goal-aware meal plans
+
+SQL Database (SQLAlchemy) – Stores users, preferences, and generated plans
+
+Clean Architecture – Encourages maintainability and experimentation
+
+
 
 ---
 
-## 📁 Folder Structure
+🛠️ Tech Stack
+
+Backend
+
+Python
+
+FastAPI
+
+SQLAlchemy
+
+JWT-based Authentication
 
 
-## Getting Started
+Frontend
 
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- npm or yarn
+React
 
-### Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   ```
-3. Activate the virtual environment:
-   - Windows (PowerShell): `.\venv\Scripts\Activate.ps1`
-   - Windows (CMD): `venv\Scripts\activate`
-   - Unix/macOS: `source venv/bin/activate`
-4. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-5. Create a `.env` file based on `.env.example` and fill in your credentials:
-   ```bash
-   cp .env.example .env
-   ```
-6. Start the FastAPI server:
-   ```bash
-   uvicorn main:app --reload
-   ```
-   Coution: The --reload option is only for development purposes. It consumes more resources and can be less stable, so it should not be used in a production environment.
-   
-   The backend will be available at `http://localhost:8000`.
+Modern JavaScript (ES6+)
 
-### Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   The frontend will be available at `http://localhost:5173`.
 
-## Folder Structure
+AI / Machine Learning
+
+TinyLLaMA / GPT-based models
+
+Prompt-engineered meal generation
+
+JSON-structured AI outputs
+
+
+Database
+
+SQL-based relational database
+
+
+
+---
+
+📁 Project Structure
+
 ai-nutritionist-capstone/
 │
 ├── backend/
 │   ├── main.py
 │   │
 │   ├── routers/
-│   │     ├── auth.py
-│   │     ├── mealplan.py
-│   │     └── pdf.py
+│   │     ├── auth.py        # Authentication & user management
+│   │     ├── mealplan.py    # Meal plan generation endpoints
+│   │     └── pdf.py         # Export meal plans as PDF
 │   │
 │   ├── core/
-│   │     ├── security.py
-│   │     └── config.py
+│   │     ├── security.py    # JWT & password hashing
+│   │     └── config.py      # Environment & app configuration
 │   │
 │   ├── database/
-│   │     ├── database.py   
-│   │     ├── models.py       
-│   │     └── schemas.py      
+│   │     ├── database.py    # Database connection
+│   │     ├── models.py      # SQLAlchemy models
+│   │     └── schemas.py     # Pydantic schemas
 │   │
 │   ├── ai/
-│   │     └── generator.py
+│   │     └── generator.py   # LLM prompt & meal plan generation logic
 │   │
 │   └── requirements.txt
 │
-├── frontend/
+├── frontend/               # React frontend
 │
 ├── ai-model/
-│   ├── dataset/
-│   ├── training/
-│   └── inference/
+│   ├── dataset/            # Nutrition datasets
+│   ├── training/           # Model training scripts
+│   └── inference/          # Model inference pipelines
 │
-└── docs/
+├── docs/                   # Documentation & reports
+└── README.md
+
+
+---
+
+🚀 Getting Started
+
+Prerequisites
+
+Python 3.8+
+
+Node.js 16+
+
+npm or yarn
 
 
 
+---
+
+⚙️ Backend Setup
+
+1. Navigate to the backend directory:
+
+cd backend
+
+
+2. Create a virtual environment:
+
+python -m venv venv
+
+
+3. Activate the virtual environment:
+
+Windows (PowerShell): ./venv/Scripts/Activate.ps1
+
+Windows (CMD): venv\\Scripts\\activate
+
+macOS / Linux: source venv/bin/activate
+
+
+
+4. Install dependencies:
+
+pip install -r requirements.txt
+
+
+5. Create environment variables:
+
+cp .env.example .env
+
+Update the .env file with your credentials and API keys.
+
+
+6. Start the FastAPI server:
+
+uvicorn main:app --reload
+
+⚠️ Note: The --reload flag is intended for development only. Avoid using it in production as it increases resource usage and may reduce stability.
+
+✅ Backend available at: http://localhost:8000
 
 
 
 
 ---
 
-## 📌 Notes
-- Meal plans are generated dynamically using LLM prompts
-- Outputs are structured as valid JSON for easy parsing
-- The project follows clean code and modular design principles
+🎨 Frontend Setup
 
+1. Navigate to the frontend directory:
+
+cd frontend
+
+
+2. Install dependencies:
+
+npm install
+
+
+3. Start the development server:
+
+npm run dev
+
+✅ Frontend available at: http://localhost:5173
+
+
+
+
+---
+
+🧠 AI Meal Plan Generation
+
+Meal plans are generated dynamically using carefully engineered LLM prompts
+
+Each plan respects:
+
+User goals (e.g., weight loss, muscle gain)
+
+Daily calorie targets
+
+Macro distribution (protein, carbs, fats)
+
+Dietary preferences and restrictions
+
+
+AI responses are returned as valid, structured JSON, making them easy to store, validate, and display
+
+
+
+---
+
+📌 Key Highlights
+
+✅ Clean, modular, and extensible codebase
+
+✅ Real-world full-stack + AI integration
+
+✅ Easily expandable (tracking, recommendations, mobile apps)
+
+✅ Ideal for academic capstone evaluation or portfolio showcase
+
+
+
+---
+
+📄 License & Usage
+
+This project is intended for educational and capstone purposes. You are free to extend, refactor, and experiment with the architecture.
+
+
+---
+
+💡 Built to demonstrate how AI, backend engineering, and frontend design come together to solve real-world problems in nutrition and health.
