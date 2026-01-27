@@ -201,3 +201,4 @@ export function ForgotPassword({ onNavigate }) {
     </div>
   );
 }
+export default ForgotPassword;

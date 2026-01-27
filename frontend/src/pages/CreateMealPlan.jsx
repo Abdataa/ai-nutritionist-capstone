@@ -325,3 +325,4 @@ export function CreateMealPlan({ onGenerate }) {
     </div>
   );
 }
+export default CreateMealPlan;

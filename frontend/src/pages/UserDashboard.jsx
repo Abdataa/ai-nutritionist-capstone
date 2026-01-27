@@ -277,3 +277,4 @@ export function UserDashboard({ onNavigate, currentUser }) {
     </div>
   );
 }
+export default UserDashboard;

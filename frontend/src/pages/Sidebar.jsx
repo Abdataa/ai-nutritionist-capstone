@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Plus,
@@ -19,6 +20,7 @@ export function Sidebar({
   user
 }) {
   // Define navigation items based on user role
+  const navigate = useNavigate();
   const navItems = user?.role === 'user' ? [
     {
       id: "dashboard",
@@ -48,7 +50,7 @@ export function Sidebar({
   ];
 
   const handleNavClick = (id) => {
-    onNavigate(id);
+    navigate(id);
     if (onMobileClose) {
       onMobileClose();
     }
@@ -164,3 +166,4 @@ export function Sidebar({
     </div>
   );
 }
+export default Sidebar;

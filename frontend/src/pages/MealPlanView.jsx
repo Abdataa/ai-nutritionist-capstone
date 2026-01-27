@@ -486,3 +486,4 @@ function MealDay({ meals }) {
     </div>
   );
 }
+export default MealPlanView;

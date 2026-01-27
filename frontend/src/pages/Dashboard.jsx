@@ -2,8 +2,11 @@ import { Users, TrendingUp, FileText, Calendar, Target, Utensils } from 'lucide-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { useNavigate } from 'react-router-dom';
 
-export function Dashboard({ onNavigate, currentUser }) {
+export function Dashboard({ onNavigate, currentUser }) 
+{
+  const navigate = useNavigate();
   const stats = [
     {
       title: 'Active Clients',
@@ -130,14 +133,14 @@ export function Dashboard({ onNavigate, currentUser }) {
         <CardContent className="flex flex-col sm:flex-row flex-wrap gap-3">
           <Button 
             className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md hover:shadow-lg transition-all hover:scale-105"
-            onClick={() => onNavigate('create')}
+            onClick={() => navigate('create')}
           >
             <Utensils className="w-4 h-4 mr-2" />
             Create New Meal Plan
           </Button>
           <Button 
             variant="outline" 
-            onClick={() => onNavigate('clients')}
+            
             className="w-full sm:w-auto hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-600 dark:hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all"
           >
             <Users className="w-4 h-4 mr-2" />
@@ -145,7 +148,7 @@ export function Dashboard({ onNavigate, currentUser }) {
           </Button>
           <Button 
             variant="outline" 
-            onClick={() => onNavigate('history')}
+            onClick={() => navigate('history')}
             className="w-full sm:w-auto hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-600 dark:hover:border-teal-500 hover:text-teal-700 dark:hover:text-teal-400 transition-all"
           >
             <Calendar className="w-4 h-4 mr-2" />
@@ -153,6 +156,8 @@ export function Dashboard({ onNavigate, currentUser }) {
           </Button>
         </CardContent>
       </Card>
+    
+      
 
       {/* Recent Plans */}
       <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all">
@@ -166,7 +171,7 @@ export function Dashboard({ onNavigate, currentUser }) {
               <div 
                 key={index}
                 className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg bg-gradient-to-r from-slate-50 to-white dark:from-slate-700 dark:to-slate-800 hover:from-emerald-50 hover:to-teal-50 dark:hover:from-emerald-900/20 dark:hover:to-teal-900/20 hover:shadow-md transition-all duration-300 cursor-pointer border border-transparent hover:border-emerald-200 dark:hover:border-emerald-700"
-                onClick={() => onNavigate('demo')}
+                onClick={() => navigate('demo')}
               >
                 <div className="flex-1 mb-3 sm:mb-0">
                   <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{plan.client}</h4>
@@ -194,3 +199,4 @@ export function Dashboard({ onNavigate, currentUser }) {
     </div>
   );
 }
+export default Dashboard;

@@ -1,9 +1,12 @@
-import { ChefHat, TrendingUp, ShoppingCart, FileText, ArrowRight, Sparkles, LogIn, UserPlus  } from 'lucide-react';
+import { ChefHat, TrendingUp, ShoppingCart, FileText, ArrowRight, Sparkles, LogIn, UserPlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // 1. Added this import
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { ThemeToggle } from '../components/ThemeToggle';
 
-export function LandingPage({ onNavigate }) {
+export function LandingPage() { // 2. Removed onNavigate from props
+  const navigate = useNavigate(); // 3. Initialized the router hook
+
   const features = [
     {
       icon: ChefHat,
@@ -40,40 +43,34 @@ export function LandingPage({ onNavigate }) {
       {/* Header */}
       <header className="border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm sticky top-0 z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => onNavigate('landing')}>
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/')}>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/50 transition-transform hover:scale-105">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">AI Nutritionist</span>
           </div>
-<nav className="flex items-center gap-3">
-  <ThemeToggle />
+          <nav className="flex items-center gap-3">
+            <ThemeToggle />
 
-  {/* Login */}
-  <Button
-    variant="ghost"
-    onClick={() => onNavigate('login')}
-    className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
-  >
-    {/* Desktop text */}
-    <span className="hidden sm:inline">Log In</span>
+            {/* Login */}
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/login')}
+              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+            >
+              <span className="hidden sm:inline">Log In</span>
+              <LogIn className="w-5 h-5 sm:hidden" />
+            </Button>
 
-    {/* Mobile icon */}
-    <LogIn className="w-5 h-5 sm:hidden" />
-  </Button>
-
-  {/* Signup */}
-  <Button
-    onClick={() => onNavigate('signup')}
-    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all"
-  >
-    {/* Desktop text */}
-    <span className="hidden sm:inline">Get Started</span>
-
-    {/* Mobile icon */}
-    <UserPlus className="w-5 h-5 sm:hidden" />
-  </Button>
-</nav>
+            {/* Signup */}
+            <Button
+              onClick={() => navigate('/signup')}
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all"
+            >
+              <span className="hidden sm:inline">Get Started</span>
+              <UserPlus className="w-5 h-5 sm:hidden" />
+            </Button>
+          </nav>
         </div>
       </header>
 
@@ -96,7 +93,7 @@ export function LandingPage({ onNavigate }) {
           <Button 
             size="lg" 
             className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/50 hover:shadow-xl hover:shadow-emerald-200/60 dark:hover:shadow-emerald-900/60 transition-all hover:scale-105"
-            onClick={() => onNavigate('signup')}
+            onClick={() => navigate('/signup')}
           >
             Generate Meal Plan
             <ArrowRight className="w-5 h-5 ml-2" />
@@ -105,7 +102,7 @@ export function LandingPage({ onNavigate }) {
             size="lg" 
             variant="outline"
             className="w-full sm:w-auto border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-600 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all"
-            onClick={() => onNavigate('demo')}
+            onClick={() => navigate('/login')} // Redirecting to login for demo in router version
           >
             View Demo
           </Button>
@@ -179,7 +176,7 @@ export function LandingPage({ onNavigate }) {
             <Button 
               size="lg" 
               className="w-full sm:w-auto bg-white text-emerald-700 hover:bg-emerald-50 shadow-lg hover:shadow-xl transition-all hover:scale-105 font-semibold"
-              onClick={() => onNavigate('signup')}
+              onClick={() => navigate('/signup')}
             >
               Start Creating Plans
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -197,3 +194,4 @@ export function LandingPage({ onNavigate }) {
     </div>
   );
 }
+export default LandingPage;

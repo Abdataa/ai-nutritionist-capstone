@@ -193,3 +193,4 @@ export function History({ onNavigate }) {
     </div>
   );
 }
+export default History;

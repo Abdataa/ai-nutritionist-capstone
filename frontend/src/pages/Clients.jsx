@@ -735,3 +735,4 @@ export function Clients({ onNavigate }) {
     </div>
   );
 }
+export default Clients;
