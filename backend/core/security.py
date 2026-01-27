@@ -55,7 +55,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def generate_password(length: int = 12) -> str:
     """Generate a strong random password."""
-    import secrets
+  
     import string
     
     # Define character sets
@@ -155,15 +155,6 @@ def decode_token(token: str) -> Dict[str, Any]:
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-# Database dependency (temporary - will be imported properly)
-def get_db():
-    """Get database session."""
-    # This is a placeholder - you need to import the real get_db
-    from database.database import get_db
-    return get_db()
-
 
 
 # Authentication dependencies

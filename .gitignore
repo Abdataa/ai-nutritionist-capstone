@@ -15,6 +15,7 @@ instance/
 .env
 *.env
 
+
 # Py test cache
 .pytest_cache/
 .coverage
@@ -107,3 +108,6 @@ frontend/
 node_modules/
 build/
 dist/
+#.env
+.env
+

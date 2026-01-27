@@ -46,13 +46,12 @@ class MealPlanResponse(BaseModel):
     goal: str
     diet_type: str
     daily_calories: int
-    macro_protein: int
-    macro_carbs: int
-    macro_fats: int
+    macros: Dict[str, int]
     created_at: datetime
 
     class Config:
         orm_mode = True
+
 
 
 # ----------- MEAL HISTORY SCHEMAS -----------

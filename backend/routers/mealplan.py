@@ -3,28 +3,57 @@ API router for meal plan generation endpoints.
 Handles requests for creating, retrieving, and managing meal plans.
 """
 # backend/routers/mealplan.py
-from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks
-from fastapi.responses import JSONResponse, FileResponse
+from typing import Optional
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
+# Attempt runtime import of fastapi; if unavailable (e.g. in static analysis)
+# provide minimal stubs so the module can be inspected without import errors.
+try:
+    from fastapi import APIRouter, HTTPException, Depends, status  # type: ignore
+    from fastapi.responses import FileResponse  # type: ignore
+except Exception:  # pragma: no cover
+    class HTTPException(Exception):
+        def __init__(self, status_code: int = 500, detail: str | None = None):
+            super().__init__(detail)
+    def Depends(x=None):
+        return x
+    status = type("status", (), {
+        "HTTP_201_CREATED": 201,
+        "HTTP_400_BAD_REQUEST": 400,
+        "HTTP_404_NOT_FOUND": 404,
+        "HTTP_500_INTERNAL_SERVER_ERROR": 500,
+        "HTTP_204_NO_CONTENT": 204,
+        "HTTP_501_NOT_IMPLEMENTED": 501,
+    })()
+    def APIRouter(*args, **kwargs):
+        class _StubRouter:
+            def post(self, *a, **k):
+                def dec(f): return f
+                return dec
+            def get(self, *a, **k):
+                def dec(f): return f
+                return dec
+            def delete(self, *a, **k):
+                def dec(f): return f
+                return dec
+        return _StubRouter()
+    class FileResponse:  # minimal stub
+        def __init__(self, *args, **kwargs): pass
+
 # Import dependencies
-from core.security import get_current_user,get_current_active_user
+from core.security import get_current_user
 from database.database import get_db
 from database.models import User
 from database.models import MealPlan as MealPlanModel
 from schemas.mealplan import (
     MealPlanRequest,
     MealPlanResponse,
-    MealPlanCreate,
-    MealPlanUpdate,
     MealPlanListResponse
 )
 from ai.generator import generator
-from ai.utils import calculate_macros, extract_grocery_list
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -103,15 +132,15 @@ async def generate_meal_plan(
         
         meal_plan_record = MealPlanModel(
                 user_id=current_user.id,
-                client_name=request.client_name or "Client",  # ← NEW
+                client_name=request.client_name or "Client",
                 goal=request.goal,
                 diet_type=request.diet_type,
-                daily_calories=request.daily_calories,  # ← Your field name
-                macros=request.macros.dict() if request.macros else {"protein": 30, "carbs": 40, "fats": 30},
-                generated_plan=result["meal_plan"],  # ← NEW
-                grocery_list=result.get("grocery_list", {}),  # ← NEW
-                source=result["source"],  # ← NEW
-                notes=request.notes  # ← NEW
+                target_calories=request.daily_calories,
+                macros=json.dumps(request.macros.dict() if request.macros else {"protein": 30, "carbs": 40, "fats": 30}),
+                generated_plan=json.dumps(result.get("meal_plan", {})),
+                grocery_list=json.dumps(result.get("grocery_list", {})),
+                source=result.get("source"),
+                notes=request.notes
                          )
         
         
@@ -347,7 +376,7 @@ async def duplicate_meal_plan(
             grocery_list=original.grocery_list,
             evaluation=original.evaluation,
             notes=f"Duplicated from {original.client_name}",
-            created_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
         
         db.add(duplicate)

@@ -13,8 +13,29 @@ from database import models
 
 Base.metadata.create_all(bind=engine)
 
+
 # Add current directory to path for imports
 sys.path.append(str(Path(__file__).parent))
+
+
+
+app = FastAPI()
+
+# Define the origins that are allowed to make requests to your backend
+origins = [
+    "http://localhost:5173",  # Your React/Vite dev server
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -35,7 +56,7 @@ app = FastAPI(
 # CORS middleware (allow all for testing)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

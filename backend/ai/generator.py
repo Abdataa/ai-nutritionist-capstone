@@ -213,8 +213,8 @@ class AINutritionistGenerator:
         logger.info(f"Using fallback plan due to: {ai_error}")
         fallback_plan = default_meal_plan(
             calories=calories,
-            diet_type=diet_type,
-            goal=goal
+            #diet_type=diet_type,
+            #goal=goal
         )
         
         return {
