@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# This .gitignore file excludes generated files, dependencies, logs,
+# build outputs, and editor/OS-specific configuration files from Git
+# to keep the repository clean and consistent across environments.
+
